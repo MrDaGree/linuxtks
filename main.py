@@ -35,11 +35,12 @@ def main():
         imgui.set_next_window_position(0, 0)
         imgui.begin("LinuxTKS", False, flags=flags)
 
-        imgui.begin_child("left", width=300)
+        imgui.begin_child("left", width=300, height=250)
 
         test_expanded, test_visisble = imgui.collapsing_header("Testing")
         if test_expanded:
-            imgui.text("test")
+            for i in range(65):
+                imgui.text("test")
 
         imgui.end_child()
 
@@ -47,7 +48,11 @@ def main():
 
         imgui.begin_child("console", height=250)
         imgui.text("General Logs")
-        imgui.begin_child("logger", border=True, flags=imgui.WINDOW_ALWAYS_VERTICAL_SCROLLBAR | imgui.WINDOW_ALWAYS_HORIZONTAL_SCROLLBAR)
+        imgui.begin_child("logger", border=True)
+
+        for i in range(65):
+                imgui.text("test")
+
         for message in logg.getLogs():
             color = (255, 255, 255, 255)
 
@@ -64,6 +69,8 @@ def main():
 
         imgui.end_child()
         imgui.end_child()
+
+        imgui.spacing()
 
         imgui.end()
 
