@@ -6,18 +6,23 @@ import json
 import re
 import requests
 from modules import logger
-color_remove =re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
+color_remove = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
 
+log = logger.Logger()
+class FileWatch():
 
-logg = logger.Logger()
-
-class FileWatch(object):
+    name = ""
+    description = ""
 
     watchLoopTime = 30.0
-    consoleMessages = []
+    started = False
 
     def __init__(self):
-        logg.logNorm("File and directory watch initiated.")
+        self.name = "File/Directory Watcher"
+        self.description = "This module is responsible for timely checks on certain directories and files to see if anything has changed"
+
+
+        log.logNorm("File and directory watch initiated.")
         with open('watch-list.json') as placesToWatch_json:
            self.placesToWatch = json.load(placesToWatch_json)
 
@@ -31,7 +36,7 @@ class FileWatch(object):
                 self.placesToWatch[path]["last-content"] = watch_file.read()
         else:
             with open(path) as watch_file:
-                logg.logAlert("A file (" + path + ") has been modified!")
+                log.logAlert("A file (" + path + ") has been modified!")
 
             self.placesToWatch[path]["last-modified"] = fileStat.st_mtime
 
@@ -56,7 +61,7 @@ class FileWatch(object):
                     files += "   \u001b[0m- \u001b[36m" + file + "\n"
 
 
-            logg.logAlert("A directory (" + path +") has been modified.")
+            log.logAlert("A directory (" + path +") has been modified.")
             self.placesToWatch[path]["last-modified"] = dirStat.st_mtime
 
     def watchLoop(self):
@@ -72,8 +77,12 @@ class FileWatch(object):
         with open('watch-list.json', 'w') as placesToWatch_json:
             json.dump(self.placesToWatch, placesToWatch_json, sort_keys=True, indent=4)
 
-    def startWatchLoop(self):
+    def start(self):
+        log.logNorm("File and directory watch loop started...")
+        self.started = True
         self.watchLoop()
 
-    def stopWatchLoop(self):
+    def stop(self):
+        log.logAlert("File and directory watch loop stopped.")
+        self.started = False
         self.watchThread._delete()

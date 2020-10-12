@@ -2,18 +2,22 @@
 import glfw
 import OpenGL.GL as gl
 import imgui
+import os
 from imgui.integrations.glfw import GlfwRenderer
 
 from modules import filewatch
 from modules import logger
+
+modules = {}
+
 
 def main():
     imgui.create_context()
     window = impl_glfw_init()
     impl = GlfwRenderer(window)
 
-    file_watch = filewatch.FileWatch()
-    file_watch.startWatchLoop()
+    modules['file_watch'] = filewatch.FileWatch()
+    modules['file_watch'].start()
 
     logg = logger.Logger()
 
@@ -48,10 +52,10 @@ def main():
 
         imgui.begin_child("console", height=250)
         imgui.text("General Logs")
-        imgui.begin_child("logger", border=True)
 
-        for i in range(65):
-                imgui.text("test")
+        imgui.spacing()
+
+        imgui.begin_child("logger", border=True)
 
         for message in logg.getLogs():
             color = (255, 255, 255, 255)
@@ -62,7 +66,7 @@ def main():
             if "ALERT" in message:
                 imgui.push_style_color(imgui.COLOR_TEXT, 1.0, 1.0, 0.0)
 
-            imgui.text(message)
+            imgui.text_wrapped(message)
 
             if "ERROR" in message or "ALERT" in message:
                 imgui.pop_style_color(1)
@@ -71,6 +75,29 @@ def main():
         imgui.end_child()
 
         imgui.spacing()
+
+        imgui.begin_child("left_bottom", width=300, height=250)
+        imgui.text("Modules")
+        imgui.separator()
+        imgui.spacing()
+
+        for moduleName, module in modules.items():
+                opened, test_visisble = imgui.collapsing_header(module.name)
+                if opened:
+                    imgui.text_wrapped(module.description)
+
+                    imgui.spacing()
+                    imgui.separator()
+                    imgui.spacing()
+
+                    if not module.started:
+                        if imgui.button("Start"):
+                            module.start()
+                    else:
+                        if imgui.button("Stop"):
+                            module.stop()
+
+        imgui.end_child()
 
         imgui.end()
 
@@ -83,7 +110,10 @@ def main():
 
     impl.shutdown()
     glfw.terminate()
-    file_watch.stopWatchLoop()
+    
+    for moduleName, module in modules.items():
+        if module.started:
+            module.stop()
 
 
 def impl_glfw_init():
