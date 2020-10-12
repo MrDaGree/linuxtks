@@ -5,7 +5,7 @@ import imgui
 from imgui.integrations.glfw import GlfwRenderer
 
 from modules import filewatch
-
+from modules import logger
 
 def main():
     imgui.create_context()
@@ -14,6 +14,8 @@ def main():
 
     file_watch = filewatch.FileWatch()
     file_watch.startWatchLoop()
+
+    logg = logger.Logger()
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
@@ -29,7 +31,7 @@ def main():
 
         flags = imgui.WINDOW_NO_MOVE | imgui.WINDOW_NO_RESIZE | imgui.WINDOW_NO_COLLAPSE | imgui.WINDOW_NO_TITLE_BAR
 
-        imgui.set_next_window_size(950, 720)
+        imgui.set_next_window_size(1220, 720)
         imgui.set_next_window_position(0, 0)
         imgui.begin("LinuxTKS", False, flags=flags)
 
@@ -39,6 +41,28 @@ def main():
         if test_expanded:
             imgui.text("test")
 
+        imgui.end_child()
+
+        imgui.same_line()
+
+        imgui.begin_child("console", height=250)
+        imgui.text("General Logs")
+        imgui.begin_child("logger", border=True, flags=imgui.WINDOW_ALWAYS_VERTICAL_SCROLLBAR | imgui.WINDOW_ALWAYS_HORIZONTAL_SCROLLBAR)
+        for message in logg.getLogs():
+            color = (255, 255, 255, 255)
+
+            if "ERROR" in message:
+                imgui.push_style_color(imgui.COLOR_TEXT, 1.0, 0.0, 0.0)
+
+            if "ALERT" in message:
+                imgui.push_style_color(imgui.COLOR_TEXT, 1.0, 1.0, 0.0)
+
+            imgui.text(message)
+
+            if "ERROR" in message or "ALERT" in message:
+                imgui.pop_style_color(1)
+
+        imgui.end_child()
         imgui.end_child()
 
         imgui.end()
@@ -56,11 +80,11 @@ def main():
 
 
 def impl_glfw_init():
-    width, height = 950, 720
+    width, height = 1220, 720
     window_name = "LinuxTKS"
 
     if not glfw.init():
-        print("Could not initialize OpenGL context")
+        printToLog("Could not initialize OpenGL context")
         exit(1)
 
 
@@ -74,7 +98,7 @@ def impl_glfw_init():
 
     if not window:
         glfw.terminate()
-        print("Could not initialize Window")
+        printToLog("Could not initialize Window")
         exit(1)
 
     return window

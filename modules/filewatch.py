@@ -5,15 +5,19 @@ import threading
 import json
 import re
 import requests
-
+from modules import logger
 color_remove =re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
 
-class FileWatch:
+
+logg = logger.Logger()
+
+class FileWatch(object):
 
     watchLoopTime = 30.0
+    consoleMessages = []
 
     def __init__(self):
-        print("File and directory watch initiated.")
+        logg.logNorm("File and directory watch initiated.")
         with open('watch-list.json') as placesToWatch_json:
            self.placesToWatch = json.load(placesToWatch_json)
 
@@ -27,9 +31,7 @@ class FileWatch:
                 self.placesToWatch[path]["last-content"] = watch_file.read()
         else:
             with open(path) as watch_file:
-                print("\u001b[31mA file (" + path + ") has been modified!\n\n\u001b[32mOld content:\n\u001b[37m" + self.placesToWatch[path]["last-content"] + "\n\n\u001b[33mNew content:\n\u001b[37m" + watch_file.read())
-                # watchNotification("A file " + path + " has been modified!\nNew content:\n" + watch_file.read())
-                # watchNotification("A file " + path + " has been modified!\nOld content:\n" + self.placesToWatch[path]["last-content"])
+                logg.logAlert("A file (" + path + ") has been modified!")
 
             self.placesToWatch[path]["last-modified"] = fileStat.st_mtime
 
@@ -54,9 +56,7 @@ class FileWatch:
                     files += "   \u001b[0m- \u001b[36m" + file + "\n"
 
 
-            print("\u001b[31mA directory (" + path +") has been modified. \n\n\u001b[32mOld content:\n\u001b[37m" + self.placesToWatch[path]["last-content"] + "\n\n\u001b[33mNew content:\n\u001b[37m" + files + "\u001b[0m")
-            # watchNotification("A directory (" + path +") has been modified.\n\nNew content:\n" + files)
-            # watchNotification("A directory (" + path +") has been modified.\n\nOld content:\n" + self.placesToWatch[path]["last-content"])
+            logg.logAlert("A directory (" + path +") has been modified.")
             self.placesToWatch[path]["last-modified"] = dirStat.st_mtime
 
     def watchLoop(self):
