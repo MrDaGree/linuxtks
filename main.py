@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 import glfw
 import OpenGL.GL as gl
-
 import imgui
 from imgui.integrations.glfw import GlfwRenderer
+
+from modules import filewatch
 
 
 def main():
     imgui.create_context()
     window = impl_glfw_init()
     impl = GlfwRenderer(window)
+
+    file_watch = filewatch.FileWatch()
+    file_watch.startWatchLoop()
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
@@ -25,13 +29,18 @@ def main():
 
         flags = imgui.WINDOW_NO_MOVE | imgui.WINDOW_NO_RESIZE | imgui.WINDOW_NO_COLLAPSE | imgui.WINDOW_NO_TITLE_BAR
 
-        imgui.set_next_window_size(500, 720)
+        imgui.set_next_window_size(950, 720)
         imgui.set_next_window_position(0, 0)
-
         imgui.begin("LinuxTKS", False, flags=flags)
+
+        imgui.begin_child("left", width=300)
+
         test_expanded, test_visisble = imgui.collapsing_header("Testing")
         if test_expanded:
             imgui.text("test")
+
+        imgui.end_child()
+
         imgui.end()
 
         gl.glClearColor(1., 1., 1., 1)
@@ -43,10 +52,11 @@ def main():
 
     impl.shutdown()
     glfw.terminate()
+    file_watch.stopWatchLoop()
 
 
 def impl_glfw_init():
-    width, height = 500, 720
+    width, height = 950, 720
     window_name = "LinuxTKS"
 
     if not glfw.init():
