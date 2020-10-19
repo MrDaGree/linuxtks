@@ -74,6 +74,9 @@ class FileWatch():
         with open('watch-list.json', 'w') as placesToWatch_json:
             json.dump(self.placesToWatch, placesToWatch_json, sort_keys=True, indent=4)
 
+    def configurationInterface(self):
+        pass
+
     def start(self):
         log.logNorm("File and directory watch loop started...")
         self.started = True

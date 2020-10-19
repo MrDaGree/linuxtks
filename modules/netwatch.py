@@ -4,6 +4,7 @@ import datetime
 import threading
 import json
 import time
+import imgui
 from modules import logger
 
 log = logger.Logger()
@@ -18,7 +19,8 @@ class NetWatch():
     rx_bytes = []
     tx_bytes = []
 
-    curAdapter = "enp9s0"
+    adapters = []
+    curAdapter = 0
 
     def __init__(self):
         self.name = "Network Traffic Monitor"
@@ -36,11 +38,6 @@ class NetWatch():
         return(r)
 
     def transmissionrate(self, dev, direction, timestep):
-        """Return the transmisson rate of a interface under linux
-        dev: devicename
-        direction: rx (received) or tx (sended)
-        timestep: time to measure in seconds
-        """
         path = "/sys/class/net/{}/statistics/{}_bytes".format(dev, direction)
         f = open(path, "r")
         bytes_before = int(f.read())
@@ -56,16 +53,25 @@ class NetWatch():
         self.watchThread.setDaemon(True)
         self.watchThread.start()
         
-        rate = self.bytesto(self.transmissionrate(self.curAdapter, "rx", 2), 'k')
+        rate = self.bytesto(self.transmissionrate(self.adapters[self.curAdapter], "rx", 2), 'k')
 
         log.logNorm(str(rate))
 
+    def configurationInterface(self):
+        changed, current = imgui.combo("Network Adapter", self.curAdapter, self.adapters)
+
+        if changed:
+            self.curAdapter = current
+
     def start(self):
         log.logNorm(self.name + " watch loop started...")
+
+        self.adapters = os.listdir('/sys/class/net')
+
         self.started = True
         self.watchLoop()
 
     def stop(self):
-        log.logNorm(self.name + " watch loop stopped.")
+        log.logAlert(self.name + " watch loop stopped.")
         self.started = False
         self.watchThread._delete()

@@ -3,6 +3,10 @@ import glfw
 import OpenGL.GL as gl
 import imgui
 import os
+
+from array import array
+from math import sin
+
 from imgui.integrations.glfw import GlfwRenderer
 
 from modules import filewatch
@@ -43,12 +47,30 @@ def main():
         imgui.set_next_window_position(0, 0)
         imgui.begin("LinuxTKS", False, flags=flags)
 
-        imgui.begin_child("left", width=300, height=250)
+        imgui.begin_child("left_bottom", width=350, height=250)
+        imgui.text("Modules")
+        imgui.separator()
+        imgui.spacing()
 
-        test_expanded, test_visisble = imgui.collapsing_header("Testing")
-        if test_expanded:
-            for i in range(65):
-                imgui.text("test")
+        for moduleName, module in modules.items():
+            opened, test_visisble = imgui.collapsing_header(module.name)
+            if opened:
+                imgui.text_wrapped(module.description)
+
+                imgui.spacing()
+                imgui.separator()
+                imgui.spacing()
+
+                module.configurationInterface()
+
+                imgui.spacing()
+
+                if not module.started:
+                    if imgui.button("Start"):
+                        module.start()
+                else:
+                    if imgui.button("Stop"):
+                        module.stop()
 
         imgui.end_child()
 
@@ -80,28 +102,6 @@ def main():
 
         imgui.spacing()
 
-        imgui.begin_child("left_bottom", width=300, height=250)
-        imgui.text("Modules")
-        imgui.separator()
-        imgui.spacing()
-
-        for moduleName, module in modules.items():
-                opened, test_visisble = imgui.collapsing_header(module.name)
-                if opened:
-                    imgui.text_wrapped(module.description)
-
-                    imgui.spacing()
-                    imgui.separator()
-                    imgui.spacing()
-
-                    if not module.started:
-                        if imgui.button("Start"):
-                            module.start()
-                    else:
-                        if imgui.button("Stop"):
-                            module.stop()
-
-        imgui.end_child()
 
         imgui.end()
 
