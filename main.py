@@ -6,6 +6,7 @@ import os
 from imgui.integrations.glfw import GlfwRenderer
 
 from modules import filewatch
+from modules import netwatch
 from modules import logger
 
 modules = {}
@@ -18,6 +19,9 @@ def main():
 
     modules['file_watch'] = filewatch.FileWatch()
     modules['file_watch'].start()
+
+    modules['nettraf_watch'] = netwatch.NetWatch()
+    modules['nettraf_watch'].start()
 
     logg = logger.Logger()
 

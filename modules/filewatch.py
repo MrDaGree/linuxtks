@@ -3,10 +3,7 @@ import platform
 import datetime
 import threading
 import json
-import re
-import requests
 from modules import logger
-color_remove = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
 
 log = logger.Logger()
 class FileWatch():
@@ -22,7 +19,7 @@ class FileWatch():
         self.description = "This module is responsible for timely checks on certain directories and files to see if anything has changed"
 
 
-        log.logNorm("File and directory watch initiated.")
+        log.logNorm(self.name + " initiated.")
         with open('watch-list.json') as placesToWatch_json:
            self.placesToWatch = json.load(placesToWatch_json)
 
