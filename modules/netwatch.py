@@ -1,10 +1,8 @@
 import os
-import platform
-import datetime
 import threading
-import json
 import time
 import imgui
+from array import array
 from modules import logger
 
 log = logger.Logger()
@@ -53,15 +51,47 @@ class NetWatch():
         self.watchThread.setDaemon(True)
         self.watchThread.start()
         
-        rate = self.bytesto(self.transmissionrate(self.adapters[self.curAdapter], "rx", 2), 'k')
+        rx_rate = self.bytesto(self.transmissionrate(self.adapters[self.curAdapter], "rx", 2), 'm')
+        self.rx_bytes.append(rx_rate)
 
-        log.logNorm(str(rate))
+        if (len(self.rx_bytes) >= 250):
+            self.rx_bytes.pop()
+
+        tx_rate = self.bytesto(self.transmissionrate(self.adapters[self.curAdapter], "tx", 2), 'm')
+        self.tx_bytes.append(tx_rate)
+
+        if (len(self.rx_bytes) >= 250):
+            self.rx_bytes.pop()
+
+    def displayInterface(self):
+        imgui.begin_child("left_bottom", width=606, height=370)
+        imgui.text("Network Traffic")
+        imgui.separator()
+        imgui.spacing()
+
+        plot_rx = array('f')
+        for byte in self.rx_bytes:
+            plot_rx.append(byte)
+
+        plot_tx = array('f')
+        for byte in self.tx_bytes:
+            plot_tx.append(byte)
+
+        imgui.text("Rx Traffic (MB)")
+        imgui.plot_lines("##Rx Traffic (MB)", plot_rx, graph_size=(606, 150))
+        imgui.text("Tx Traffic (MB)")
+        imgui.plot_lines("##Tx Traffic (MB)", plot_tx, graph_size=(606, 150))
+        imgui.end_child()
 
     def configurationInterface(self):
         changed, current = imgui.combo("Network Adapter", self.curAdapter, self.adapters)
 
         if changed:
             self.curAdapter = current
+            self.rx_bytes = []
+            self.rx_bytes.append(0)
+            self.tx_bytes = []
+            self.tx_bytes.append(0)
 
     def start(self):
         log.logNorm(self.name + " watch loop started...")

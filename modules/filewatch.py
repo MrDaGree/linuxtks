@@ -77,6 +77,9 @@ class FileWatch():
     def configurationInterface(self):
         pass
 
+    def displayInterface(self):
+        pass
+
     def start(self):
         log.logNorm("File and directory watch loop started...")
         self.started = True

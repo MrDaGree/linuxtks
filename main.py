@@ -43,7 +43,7 @@ def main():
 
         flags = imgui.WINDOW_NO_MOVE | imgui.WINDOW_NO_RESIZE | imgui.WINDOW_NO_COLLAPSE | imgui.WINDOW_NO_TITLE_BAR
 
-        imgui.set_next_window_size(1220, 720)
+        imgui.set_next_window_size(1220, 650)
         imgui.set_next_window_position(0, 0)
         imgui.begin("LinuxTKS", False, flags=flags)
 
@@ -102,6 +102,11 @@ def main():
 
         imgui.spacing()
 
+        imgui.begin_child("module_views")
+        for moduleName, module in modules.items():
+            if module.started:
+                module.displayInterface()
+        imgui.end_child()
 
         imgui.end()
 
@@ -121,7 +126,7 @@ def main():
 
 
 def impl_glfw_init():
-    width, height = 1220, 720
+    width, height = 1220, 650
     window_name = "LinuxTKS"
 
     if not glfw.init():
