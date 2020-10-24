@@ -13,6 +13,7 @@ class FileWatch():
 
     watchLoopTime = 30.0
     started = False
+    interfaceActive = False
 
     def __init__(self):
         self.name = "File/Directory Watcher"
