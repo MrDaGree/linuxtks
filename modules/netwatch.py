@@ -128,6 +128,8 @@ class NetWatch(LTKSModule.LTKSModule):
         imgui.end_child()
 
     def configurationInterface(self):
+        super().configurationInterface()
+
         changed, current = imgui.combo("Network Adapter", self.curAdapter, self.adapters)
 
         if changed:

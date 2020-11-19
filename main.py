@@ -55,22 +55,7 @@ def main():
         for moduleName, module in modules.items():
             opened, test_visisble = imgui.collapsing_header(module.name)
             if opened:
-                imgui.text_wrapped(module.description)
-
-                imgui.spacing()
-                imgui.separator()
-                imgui.spacing()
-
                 module.configurationInterface()
-
-                imgui.spacing()
-
-                if not module.started:
-                    if imgui.button("Start"):
-                        module.start()
-                else:
-                    if imgui.button("Stop"):
-                        module.stop()
 
         imgui.end_child()
 

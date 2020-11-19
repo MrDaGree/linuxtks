@@ -29,7 +29,20 @@ class LTKSModule():
         pass
 
     def configurationInterface(self):
-       pass
+        imgui.text_wrapped(self.description)
+
+        imgui.spacing()
+
+        if not self.started:
+            if imgui.button("Start"):
+                self.start()
+        else:
+            if imgui.button("Stop"):
+                self.stop()
+
+        imgui.spacing()
+        imgui.separator()
+        imgui.spacing()
 
     def start(self):
         log.logNorm(self.name + " watch loop started...")
