@@ -3,6 +3,7 @@ import threading
 import time
 from datetime import datetime
 import imgui
+import numpy
 from array import array
 from modules import logger
 
@@ -66,13 +67,14 @@ class NetWatch():
         if (len(self.rx_bytes) > 151):
             self.rx_bytes.pop(0)
 
-        if (rx_rate >= self.alertFloor):
-            rx_avg = round(sum(self.rx_bytes)/len(self.rx_bytes), 5)
-            rx_trigger = rx_avg * (self.triggerPercent/100)
+        if (len(self.tx_bytes) >= 150):
+            if (rx_rate >= self.alertFloor):
+                rx_avg = round(sum(self.rx_bytes)/len(self.rx_bytes), 5)
+                rx_trigger = rx_avg * (self.triggerPercent/100)
 
-            if self.rx_bytes[len(self.rx_bytes) - 1] >= rx_avg + rx_trigger:
-                if self.rx_bytes[len(self.rx_bytes) - 1] > self.rx_bytes[len(self.rx_bytes) - 2]:
-                    self.alert("Download Traffic Rate Peaked at: " + str(round(rx_rate, 5)))
+                if self.rx_bytes[len(self.rx_bytes) - 1] >= rx_avg + rx_trigger:
+                    if self.rx_bytes[len(self.rx_bytes) - 1] > self.rx_bytes[len(self.rx_bytes) - 2]:
+                        self.alert("Download Traffic Rate Peaked at: " + str(round(rx_rate, 5)))
 
     def txByteHandling(self):
         tx_rate = self.bytesto(self.transmissionrate(self.adapters[self.curAdapter], "tx", 0.5), 'm')
@@ -81,13 +83,14 @@ class NetWatch():
         if (len(self.tx_bytes) > 151):
             self.tx_bytes.pop(0)
 
-        if (tx_rate >= self.alertFloor):
-            tx_avg = round(sum(self.tx_bytes)/len(self.tx_bytes), 5)
-            tx_trigger = tx_avg * (self.triggerPercent/100)
+        if (len(self.tx_bytes) >= 150):
+            if (tx_rate >= self.alertFloor):
+                tx_avg = round(sum(self.tx_bytes)/len(self.tx_bytes), 5)
+                tx_trigger = tx_avg * (self.triggerPercent/100)
 
-            if self.tx_bytes[len(self.tx_bytes) - 1] >= tx_avg + tx_trigger:
-                if self.tx_bytes[len(self.tx_bytes) - 1] > self.tx_bytes[len(self.tx_bytes) - 2]:
-                    self.alert("Upload Traffic Rate Peaked at: " + str(round(tx_rate, 5)))
+                if self.tx_bytes[len(self.tx_bytes) - 1] >= tx_avg + tx_trigger:
+                    if self.tx_bytes[len(self.tx_bytes) - 1] > self.tx_bytes[len(self.tx_bytes) - 2]:
+                        self.alert("Upload Traffic Rate Peaked at: " + str(round(tx_rate, 5)))
 
     def watchLoop(self):
         self.watchThread = threading.Timer(self.watchLoopTime, self.watchLoop)
