@@ -1,6 +1,23 @@
 {
+    "/home/dgreeley/Documents/SIP/linuxtks": {
+        "dir-content": {
+            "directories": [
+                "modules",
+                ".git",
+                "test"
+            ],
+            "files": [
+                "main.py",
+                "watch-list.json",
+                "sip.code-workspace",
+                "README.md",
+                ".gitignore"
+            ]
+        },
+        "last-modified": 1605821349.1655898
+    },
     "/home/dgreeley/Documents/SIP/linuxtks/README.md": {
-        "last-content": "### LinuxTKS\n\n# About\nLinuxTKS is part of my Student Innvate Project during my schooling. It is required to create something innovative in order to graduate, thus came along the idea of creating a light weight toolkit for Linux for things that I overlooked in CCDC competitions.\n",
-        "last-modified": 1603147547.88199
+        "last-content": "### LinuxTKS\n\n# About\nLinuxTKS is part of my Student Innvate Project during my schooling. It is required to create something innovative in order to graduate, thus came along the idea of creating a light weight toolkit for Linux for things that I overlooked in CCDC competitions.\n\n# Current working Example\n\n![Current GUI Interface](https://uat.mrdagree.com/img/sip/network_alert_demo.png)\n",
+        "last-modified": 1605821343.67755
     }
 }

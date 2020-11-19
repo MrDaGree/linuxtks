@@ -92,6 +92,7 @@ def main():
             if "ALERT" in message:
                 imgui.push_style_color(imgui.COLOR_TEXT, 1.0, 1.0, 0.0)
 
+            imgui.push_text_wrap_position()
             imgui.text_wrapped(message)
 
             if "ERROR" in message or "ALERT" in message:
