@@ -6,13 +6,10 @@ import imgui
 import numpy
 from array import array
 from modules import logger
+from modules import LTKSModule
 
 log = logger.Logger()
-class NetWatch():
-
-    name = ""
-    description = ""
-
+class NetWatch(LTKSModule.LTKSModule):
     triggerPercent = 20
     alertFloor = 0.5
 
@@ -28,11 +25,7 @@ class NetWatch():
     curAdapter = 0
 
     def __init__(self):
-        self.name = "Network Traffic Monitor"
-        self.description = "This module is responsible for timely checks on network data usage"
-
-
-        log.logNorm(self.name + " initiated.")
+        super().__init__("Network Traffic Monitor", "This module is responsible for timely checks on network data usage")
 
     def bytesto(self, bytes, to, bsize=1024):
         a = {'k' : 1, 'm': 2, 'g' : 3, 't' : 4, 'p' : 5, 'e' : 6 }
@@ -162,8 +155,3 @@ class NetWatch():
 
         self.started = True
         self.watchLoop()
-
-    def stop(self):
-        log.logAlert(self.name + " watch loop stopped.")
-        self.started = False
-        self.watchThread._delete()

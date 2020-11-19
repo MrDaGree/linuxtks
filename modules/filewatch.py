@@ -5,12 +5,10 @@ import imgui
 import threading
 import json
 from modules import logger
+from modules import LTKSModule
 
 log = logger.Logger()
-class FileWatch():
-
-    name = ""
-    description = ""
+class FileWatch(LTKSModule.LTKSModule):
 
     alerts = []
     alertsData = {}
@@ -22,11 +20,8 @@ class FileWatch():
     addingPathText = ""
 
     def __init__(self):
-        self.name = "File/Directory Watcher"
-        self.description = "This module is responsible for timely checks on certain directories and files to see if anything has changed"
+        super().__init__("File/Directory Watcher", "This module is responsible for timely checks on certain directories and files to see if anything has changed")
 
-
-        log.logNorm(self.name + " initiated.")
         with open('watch-list.json') as watchInformation_json:
            self.watchInformation = json.load(watchInformation_json)
 
@@ -145,9 +140,6 @@ class FileWatch():
             self.watchInformation[self.addingPathText] = newPath
             self.saveWatchInformation()
 
-    def configurationInterface(self):
-        pass
-
     def displayInterface(self):
         imgui.begin_child("left_bottom", width=606, height=370)
 
@@ -236,11 +228,6 @@ class FileWatch():
         imgui.end_child()
 
     def start(self):
-        log.logNorm("File and directory watch loop started...")
+        log.logNorm(self.name + " watch loop started...")
         self.started = True
         self.watchLoop()
-
-    def stop(self):
-        log.logAlert("File and directory watch loop stopped.")
-        self.started = False
-        self.watchThread._delete()
