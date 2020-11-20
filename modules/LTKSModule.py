@@ -21,6 +21,7 @@ class LTKSModule():
 
 
         log.logNorm(self.name + " initiated.")
+        self.start()
 
     def watchLoop(self):
         pass

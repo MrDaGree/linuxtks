@@ -9,9 +9,10 @@ from math import sin
 
 from imgui.integrations.glfw import GlfwRenderer
 
+from modules import logger
 from modules import filewatch
 from modules import netwatch
-from modules import logger
+from modules import sshwatch
 
 modules = {}
 
@@ -22,10 +23,10 @@ def main():
     impl = GlfwRenderer(window)
 
     modules['file_watch'] = filewatch.FileWatch()
-    modules['file_watch'].start()
 
     modules['nettraf_watch'] = netwatch.NetWatch()
-    modules['nettraf_watch'].start()
+
+    modules['ssh_watch'] = sshwatch.SSHWatch()
 
     logg = logger.Logger()
 

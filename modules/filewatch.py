@@ -20,10 +20,10 @@ class FileWatch(LTKSModule.LTKSModule):
     addingPathText = ""
 
     def __init__(self):
-        super().__init__("File/Directory Watcher", "This module is responsible for timely checks on certain directories and files to see if anything has changed")
-
         with open('watch-list.json') as watchInformation_json:
            self.watchInformation = json.load(watchInformation_json)
+
+        super().__init__("File/Directory Watcher", "This module is responsible for timely checks on certain directories and files to see if anything has changed")
 
     def alert(self, message, data):
         dateTimeObj = datetime.now()

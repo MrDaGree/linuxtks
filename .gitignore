@@ -1,4 +1,2 @@
 sip.code-workspace
-watch-list.json
-imgui.ini
-proof_concept/*
+*.json
