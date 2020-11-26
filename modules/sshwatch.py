@@ -93,6 +93,9 @@ class SSHWatch(LTKSModule.LTKSModule):
 
         imgui.begin_child("ssh_alerts_logger", border=True)
 
+        for message in self.alerts:
+            imgui.text_wrapped(message)
+
         imgui.end_child()
         imgui.end_child()
 
