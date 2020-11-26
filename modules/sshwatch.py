@@ -5,6 +5,7 @@ import imgui
 import threading
 import json
 import subprocess
+import re
 from modules import logger
 from modules import LTKSModule
 
@@ -24,7 +25,7 @@ class SSHWatch(LTKSModule.LTKSModule):
     def __init__(self):
         super().__init__("SSH Watcher", "This module is watches for SSH connects/disconnections along with allowing the user to quit a specific user SSH session.")
 
-    def alert(self, message, data):
+    def alert(self, message):
         dateTimeObj = datetime.now()
         timestampStr = dateTimeObj.strftime("[%m-%d-%Y] [%H:%M:%S]")
 
@@ -36,30 +37,29 @@ class SSHWatch(LTKSModule.LTKSModule):
         self.watchThread.setDaemon(True)
         self.watchThread.start()
 
-        print(subprocess.check_output("who -uH", shell=True))
+        who = subprocess.check_output("who -uH", shell=True)
+        cmdLines = who.decode().rstrip().split("\n")
 
-        authFile = open("/var/log/auth.log")
+        for line in cmdLines:
+            lineInfo = line.split()
+            if (lineInfo[1] not in self.activeConnections):
+                if (lineInfo[1][0:-2] == "pts"):
+                    con_time = datetime.strptime(lineInfo[2] + " " + lineInfo[3], '%Y-%m-%d %H:%M')
 
-        for line in authFile.readlines():
-            if "sshd" in line:
-                lineList = line.split(" ")
-                if ("Accepted" in line):
-                    now = datetime.now()
-                    con_time = datetime.strptime(lineList[0] + " " + lineList[1] + " " + str(now.year) + " " + lineList[2], '%b %d %Y %H:%M:%S')
                     data = {
-                        "ip": lineList[10],
-                        "port": lineList[12],
-                        "ssh_proc": lineList[4],
-                        "user": lineList[8],
+                        "ip": lineInfo[6][1:-1],
+                        "ssh_proc": lineInfo[1],
+                        "user": lineInfo[0],
                         "connected_time": con_time
                     }
-                    self.activeConnections[lineList[12]] = data
 
-                if ("Disconnected" in line):
-                    # 8,9,11
-                    lineList[11] = lineList[11].strip('\n')
-                    if (lineList[11] in self.activeConnections):
-                        del self.activeConnections[lineList[11]]
+                    self.activeConnections[lineInfo[1]] = data
+                    self.alert("New SSH Connection Detected From (" + data["ip"] + ")")
+            
+        for conn in list(self.activeConnections.keys()):
+            if (not re.search(conn, who.decode())):
+                del self.activeConnections[conn]
+
 
     def displayInterface(self):
 
@@ -71,13 +71,15 @@ class SSHWatch(LTKSModule.LTKSModule):
 
         imgui.begin_child("connections", width=606)
 
-        for conn in self.activeConnections:
+        for conn in list(self.activeConnections.keys()):
             now = datetime.now()
             elapsed = now - self.activeConnections[conn]["connected_time"]
-            imgui.text(self.activeConnections[conn]["ip"] + ":" + self.activeConnections[conn]["port"] + " (" + self.activeConnections[conn]["user"] + ") " + self.activeConnections[conn]["ssh_proc"] + " | Elapsed Time: " + str(elapsed))
+            imgui.text(self.activeConnections[conn]["user"] + " (" + self.activeConnections[conn]["ip"] + ") " + self.activeConnections[conn]["ssh_proc"] + " | Connected Time: " + str(elapsed))
             imgui.same_line()
             if (imgui.button("Kick")):
-                pass
+                #pkill -9 -t pts/1
+                subprocess.run("pkill -9 -t " + self.activeConnections[conn]["ssh_proc"], shell=True)
+                del self.activeConnections[self.activeConnections[conn]["ssh_proc"]]
 
         imgui.end_child()
         imgui.end_child()
