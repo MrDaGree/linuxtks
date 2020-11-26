@@ -11,3 +11,9 @@ LinuxTKS is part of my Student Innvate Project during my schooling. It is requir
 # File/Directory Modification Alerts
 
 ![File/Directory](https://uat.mrdagree.com/img/sip/file_alert_demo.png)
+
+
+## Current Known Issues
+* [ ] Cannot remove file until one before that is removed
+* [ ] Cannot kick or ban SSH user until one before that is
+* [ ] Must run as sudo or as root in order to kick or ban other users (linux permissions)
