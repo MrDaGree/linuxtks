@@ -4,6 +4,7 @@ from datetime import *
 import imgui
 import threading
 import json
+import subprocess
 from modules import logger
 from modules import LTKSModule
 
@@ -34,6 +35,8 @@ class SSHWatch(LTKSModule.LTKSModule):
         self.watchThread = threading.Timer(self.watchLoopTime, self.watchLoop)
         self.watchThread.setDaemon(True)
         self.watchThread.start()
+
+        print(subprocess.check_output("who -uH", shell=True))
 
         authFile = open("/var/log/auth.log")
 
@@ -71,7 +74,7 @@ class SSHWatch(LTKSModule.LTKSModule):
         for conn in self.activeConnections:
             now = datetime.now()
             elapsed = now - self.activeConnections[conn]["connected_time"]
-            imgui.text(self.activeConnections[conn]["ip"] + ":" + self.activeConnections[conn]["port"] + " (" + self.activeConnections[conn]["user"] + ") | Elapsed Time: " + str(elapsed))
+            imgui.text(self.activeConnections[conn]["ip"] + ":" + self.activeConnections[conn]["port"] + " (" + self.activeConnections[conn]["user"] + ") " + self.activeConnections[conn]["ssh_proc"] + " | Elapsed Time: " + str(elapsed))
             imgui.same_line()
             if (imgui.button("Kick")):
                 pass
