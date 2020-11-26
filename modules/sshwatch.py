@@ -29,7 +29,7 @@ class SSHWatch(LTKSModule.LTKSModule):
         dateTimeObj = datetime.now()
         timestampStr = dateTimeObj.strftime("[%m-%d-%Y] [%H:%M:%S]")
 
-        self.alerts.append(timestampStr + " ALERT | " + message)
+        self.alerts.append(timestampStr + " " + message)
         log.logAlert(message)
 
     def watchLoop(self):
@@ -54,7 +54,7 @@ class SSHWatch(LTKSModule.LTKSModule):
                     }
 
                     self.activeConnections[lineInfo[1]] = data
-                    self.alert("New SSH Connection Detected From (" + data["ip"] + ")")
+                    self.alert("New SSH Connection Detected From " + data["user"] + " (" + data["ip"] + ")")
             
         for conn in list(self.activeConnections.keys()):
             if (not re.search(conn, who.decode())):
@@ -67,19 +67,28 @@ class SSHWatch(LTKSModule.LTKSModule):
 
 
         imgui.text("SSH Connections")
-        imgui.begin_child("left_bottom", width=606, height=352, border=True)
+        imgui.begin_child("left_bottom", width=606, height=353, border=True)
 
         imgui.begin_child("connections", width=606)
 
         for conn in list(self.activeConnections.keys()):
             now = datetime.now()
             elapsed = now - self.activeConnections[conn]["connected_time"]
-            imgui.text(self.activeConnections[conn]["user"] + " (" + self.activeConnections[conn]["ip"] + ") " + self.activeConnections[conn]["ssh_proc"] + " | Connected Time: " + str(elapsed))
+            imgui.text(self.activeConnections[conn]["user"] + " (" + self.activeConnections[conn]["ip"] + ") " + self.activeConnections[conn]["ssh_proc"] + "\t| Connected Time: " + str(elapsed))
             imgui.same_line()
             if (imgui.button("Kick")):
-                #pkill -9 -t pts/1
-                subprocess.run("pkill -9 -t " + self.activeConnections[conn]["ssh_proc"], shell=True)
+                print("kicking " + self.activeConnections[conn]["user"])
+                subprocess.run("sudo pkill -9 -t " + self.activeConnections[conn]["ssh_proc"], shell=True)
                 del self.activeConnections[self.activeConnections[conn]["ssh_proc"]]
+
+            # imgui.same_line()
+            # if (imgui.button("Ban User")):
+            #     pass
+
+            # imgui.same_line()
+            # if (imgui.button("Ban IP")):
+            #     pass
+
 
         imgui.end_child()
         imgui.end_child()

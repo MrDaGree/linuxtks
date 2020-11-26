@@ -33,7 +33,7 @@ class FileWatch(LTKSModule.LTKSModule):
 
         self.alertsData[len(self.alertsData) + 1] = data
 
-        self.alerts.append(timestampStr + " ALERT | " + message)
+        self.alerts.append(timestampStr + " " + message)
         log.logAlert(message)
 
     def saveWatchInformation(self):

@@ -39,7 +39,7 @@ class NetWatch(LTKSModule.LTKSModule):
         dateTimeObj = datetime.now()
         timestampStr = dateTimeObj.strftime("[%m-%d-%Y] [%H:%M:%S]")
 
-        self.alerts.append(timestampStr + " ALERT | " + message)
+        self.alerts.append(timestampStr + " " + message)
         log.logAlert(message)
 
     def transmissionrate(self, dev, direction, timestep):
