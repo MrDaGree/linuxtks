@@ -15,5 +15,6 @@ LinuxTKS is part of my Student Innvate Project during my schooling. It is requir
 
 ## Current Known Issues
 * [ ] Cannot remove file until one before that is removed
-* [ ] Cannot kick or ban SSH user until one before that is
+* [x] Cannot kick or ban SSH user until one before that is
+  * Added in a drop down option to select a SSH session to kick or ban 
 * [ ] Must run as sudo or as root in order to kick or ban other users (linux permissions)

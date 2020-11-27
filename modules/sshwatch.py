@@ -18,6 +18,8 @@ class SSHWatch(LTKSModule.LTKSModule):
     started = False
     interfaceActive = False
 
+    sshSelected = 0
+    sshSelectionOptions = []
     activeConnections = {}
 
     addingPathText = ""
@@ -60,6 +62,11 @@ class SSHWatch(LTKSModule.LTKSModule):
             if (not re.search(conn, who.decode())):
                 del self.activeConnections[conn]
 
+        self.sshSelectionOptions = []
+
+        for conn in self.activeConnections:
+            self.sshSelectionOptions.append("(" + self.activeConnections[conn]["ssh_proc"] + ") " + self.activeConnections[conn]["user"] + " " + self.activeConnections[conn]["ip"])
+
 
     def displayInterface(self):
 
@@ -67,31 +74,66 @@ class SSHWatch(LTKSModule.LTKSModule):
 
 
         imgui.text("SSH Connections")
-        imgui.begin_child("left_bottom", width=606, height=353, border=True)
+        imgui.begin_child("left_bottom", width=606, height=310, border=True)
 
         imgui.begin_child("connections", width=606)
+
+        imgui.columns(4, 'ssh_connections')
+        imgui.text("ID")
+        imgui.next_column()
+        imgui.text("USER")
+        imgui.next_column()
+        imgui.text("IP")
+        imgui.next_column()
+        imgui.text("Time Connected")
+        imgui.separator()
+
+        imgui.set_column_width(0, 70)
 
         for conn in list(self.activeConnections.keys()):
             now = datetime.now()
             elapsed = now - self.activeConnections[conn]["connected_time"]
-            imgui.text(self.activeConnections[conn]["user"] + " (" + self.activeConnections[conn]["ip"] + ") " + self.activeConnections[conn]["ssh_proc"] + "\t| Connected Time: " + str(elapsed))
-            imgui.same_line()
-            if (imgui.button("Kick")):
-                print("kicking " + self.activeConnections[conn]["user"])
-                subprocess.run("sudo pkill -9 -t " + self.activeConnections[conn]["ssh_proc"], shell=True)
-                del self.activeConnections[self.activeConnections[conn]["ssh_proc"]]
+            imgui.next_column()
+            imgui.text(self.activeConnections[conn]["ssh_proc"])
+            imgui.next_column()
+            imgui.text(self.activeConnections[conn]["user"])
+            imgui.next_column()
+            imgui.text(self.activeConnections[conn]["ip"]) 
+            imgui.next_column()
+            imgui.text(str(elapsed))
 
-            # imgui.same_line()
-            # if (imgui.button("Ban User")):
-            #     pass
-
-            # imgui.same_line()
-            # if (imgui.button("Ban IP")):
-            #     pass
-
+        imgui.columns(1)
 
         imgui.end_child()
         imgui.end_child()
+
+        imgui.text("Select a SSH Session")
+
+        clicked, current = imgui.combo(
+            "##Path input", self.sshSelected, self.sshSelectionOptions
+        )
+
+        if (clicked):
+            self.sshSelected = current
+
+        imgui.same_line()
+
+        if (imgui.button("Kick")):
+            ssh_proc = self.sshSelectionOptions[self.sshSelected].split()[0][1:-1]
+            del self.sshSelectionOptions[self.sshSelected]
+            subprocess.run("sudo pkill -9 -t " + ssh_proc, shell=True)
+            log.logNorm("Kicked SSH Session (" + ssh_proc + ") " + self.activeConnections[ssh_proc]["user"])
+            del self.activeConnections[ssh_proc]
+
+        imgui.same_line()
+        if (imgui.button("Ban User")):
+            pass
+
+        imgui.same_line()
+        if (imgui.button("Ban IP")):
+            pass
+            
+
         imgui.end_child()
 
 
