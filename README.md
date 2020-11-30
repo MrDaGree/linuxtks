@@ -1,17 +1,7 @@
-### LinuxTKS
+# LinuxTKS
 
-# About
+## About
 LinuxTKS is part of my Student Innvate Project during my schooling. It is required to create something innovative in order to graduate, thus came along the idea of creating a light weight toolkit for Linux for things that I overlooked in CCDC competitions.
-
-# Network Traffic Alerts
-
-![Network Traffic Alerts](https://uat.mrdagree.com/img/sip/network_alert_demo.png)
-
-
-# File/Directory Modification Alerts
-
-![File/Directory](https://uat.mrdagree.com/img/sip/file_alert_demo.png)
-
 
 ## Current Known Issues
 * [ ] Cannot remove file until one before that is removed
@@ -25,3 +15,17 @@ LinuxTKS is part of my Student Innvate Project during my schooling. It is requir
 * [ ] Add in viewing of banned users and IPs
 * [ ] Add in option to remove users/IPs from ban list
 * [ ] Add in an option to disable alerts
+
+
+### Network Traffic Alerts
+
+![Network Traffic Alerts](https://uat.mrdagree.com/img/sip/network_alert_demo.png)
+
+
+### File/Directory Modification Alerts
+
+![File/Directory](https://uat.mrdagree.com/img/sip/file_alert_demo.png)
+
+### SSH Detection Alerts
+
+![SSH Detection](https://uat.mrdagree.com/img/sip/ssh_alert_demo.png)
