@@ -20,7 +20,7 @@ class FileWatch(LTKSModule.LTKSModule):
     addingPathText = ""
 
     def __init__(self):
-        with open('watch-list.json') as watchInformation_json:
+        with open('saves/watch-list.json') as watchInformation_json:
            self.watchInformation = json.load(watchInformation_json)
 
         super().__init__("File/Directory Watcher", "This module is responsible for timely checks on certain directories and files to see if anything has changed")
@@ -37,7 +37,7 @@ class FileWatch(LTKSModule.LTKSModule):
         log.logAlert(message)
 
     def saveWatchInformation(self):
-        with open('watch-list.json', 'w') as watchInformation_json:
+        with open('saves/watch-list.json', 'w') as watchInformation_json:
             json.dump(self.watchInformation, watchInformation_json, sort_keys=True, indent=4)
 
     def handleFileAlert(self, path):

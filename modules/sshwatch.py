@@ -14,7 +14,7 @@ class SSHWatch(LTKSModule.LTKSModule):
 
     alerts = []
 
-    watchLoopTime = 30.0
+    watchLoopTime = 1.0
     started = False
     interfaceActive = False
 
@@ -22,9 +22,12 @@ class SSHWatch(LTKSModule.LTKSModule):
     sshSelectionOptions = []
     activeConnections = {}
 
-    addingPathText = ""
+    banList = {}
 
     def __init__(self):
+        with open('saves/ban-list.json') as banlist_json:
+           self.banList = json.load(banlist_json)
+
         super().__init__("SSH Watcher", "This module is watches for SSH connects/disconnections along with allowing the user to quit a specific user SSH session.")
 
     def alert(self, message):
@@ -33,6 +36,15 @@ class SSHWatch(LTKSModule.LTKSModule):
 
         self.alerts.append(timestampStr + " " + message)
         log.logAlert(message)
+
+    def saveBanList(self):
+        with open('saves/ban-list.json', 'w') as banlist_json:
+            json.dump(self.banList, banlist_json, sort_keys=True, indent=4)
+
+    def disconnectSSHConnection(self, conn):
+        del self.sshSelectionOptions[self.sshSelected]
+        subprocess.run("sudo pkill -9 -t " + conn, shell=True)
+        del self.activeConnections[conn]
 
     def watchLoop(self):
         self.watchThread = threading.Timer(self.watchLoopTime, self.watchLoop)
@@ -55,8 +67,12 @@ class SSHWatch(LTKSModule.LTKSModule):
                         "connected_time": con_time
                     }
 
-                    self.activeConnections[lineInfo[1]] = data
-                    self.alert("New SSH Connection Detected From " + data["user"] + " (" + data["ip"] + ")")
+                    if (data["user"] in self.banList["users"]):
+                        self.alert("SSH User BANNED Connection Detected " + data["user"] + " (" + data["ip"] + ")")
+                        subprocess.run("sudo pkill -9 -t " + data["ssh_proc"], shell=True)
+                    else: 
+                        self.activeConnections[lineInfo[1]] = data
+                        self.alert("New SSH Connection Detected From " + data["user"] + " (" + data["ip"] + ")")
             
         for conn in list(self.activeConnections.keys()):
             if (not re.search(conn, who.decode())):
@@ -120,14 +136,16 @@ class SSHWatch(LTKSModule.LTKSModule):
 
         if (imgui.button("Kick")):
             ssh_proc = self.sshSelectionOptions[self.sshSelected].split()[0][1:-1]
-            del self.sshSelectionOptions[self.sshSelected]
-            subprocess.run("sudo pkill -9 -t " + ssh_proc, shell=True)
             log.logNorm("Kicked SSH Session (" + ssh_proc + ") " + self.activeConnections[ssh_proc]["user"])
-            del self.activeConnections[ssh_proc]
+            self.disconnectSSHConnection(ssh_proc)
 
         imgui.same_line()
         if (imgui.button("Ban User")):
-            pass
+            ssh_proc = self.sshSelectionOptions[self.sshSelected].split()[0][1:-1]
+            username = self.sshSelectionOptions[self.sshSelected].split()[1]
+            self.banList["users"].append(username)
+            self.saveBanList()
+            self.disconnectSSHConnection(ssh_proc)
 
         imgui.same_line()
         if (imgui.button("Ban IP")):

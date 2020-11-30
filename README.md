@@ -18,3 +18,10 @@ LinuxTKS is part of my Student Innvate Project during my schooling. It is requir
 * [x] Cannot kick or ban SSH user until one before that is
   * Added in a drop down option to select a SSH session to kick or ban 
 * [ ] Must run as sudo or as root in order to kick or ban other users (linux permissions)
+
+## Things to work on
+* [x] Ban SSH by User
+* [ ] Ban SSH by connecting IP
+* [ ] Add in viewing of banned users and IPs
+* [ ] Add in option to remove users/IPs from ban list
+* [ ] Add in an option to disable alerts
