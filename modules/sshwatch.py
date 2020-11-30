@@ -17,6 +17,7 @@ class SSHWatch(LTKSModule.LTKSModule):
     watchLoopTime = 1.0
     started = False
     interfaceActive = False
+    activeInterface = "main"
 
     sshSelected = 0
     sshSelectionOptions = []
@@ -84,6 +85,26 @@ class SSHWatch(LTKSModule.LTKSModule):
             self.sshSelectionOptions.append("(" + self.activeConnections[conn]["ssh_proc"] + ") " + self.activeConnections[conn]["user"] + " " + self.activeConnections[conn]["ip"])
 
 
+    def moduleMenuBar(self, modules):
+        if (imgui.begin_menu(self.name)):
+
+            main_c, _ = imgui.menu_item("Main Interface")
+            if main_c:
+                for _, moduleToDisable in modules.items():
+                    moduleToDisable.interfaceActive = False
+                self.interfaceActive = not self.interfaceActive
+                self.activeInterface = "main"
+
+            banList_c, _ = imgui.menu_item("Ban List")
+            if banList_c:
+                for _, moduleToDisable in modules.items():
+                    moduleToDisable.interfaceActive = False
+                self.interfaceActive = not self.interfaceActive
+                self.activeInterface = "ban"
+
+            imgui.end_menu()
+                
+
     def displayInterface(self):
 
         imgui.begin_child("left_bottom", width=606, height=370)
@@ -92,68 +113,73 @@ class SSHWatch(LTKSModule.LTKSModule):
         imgui.text("SSH Connections")
         imgui.begin_child("left_bottom", width=606, height=310, border=True)
 
-        imgui.begin_child("connections", width=606)
+        if (self.activeInterface == "main"):
 
-        imgui.columns(4, 'ssh_connections')
-        imgui.text("ID")
-        imgui.next_column()
-        imgui.text("USER")
-        imgui.next_column()
-        imgui.text("IP")
-        imgui.next_column()
-        imgui.text("Time Connected")
-        imgui.separator()
+            imgui.begin_child("connections", width=606)
 
-        imgui.set_column_width(0, 70)
+            imgui.columns(4, 'ssh_connections')
+            imgui.text("ID")
+            imgui.next_column()
+            imgui.text("USER")
+            imgui.next_column()
+            imgui.text("IP")
+            imgui.next_column()
+            imgui.text("Time Connected")
+            imgui.separator()
 
-        for conn in list(self.activeConnections.keys()):
-            now = datetime.now()
-            elapsed = now - self.activeConnections[conn]["connected_time"]
-            imgui.next_column()
-            imgui.text(self.activeConnections[conn]["ssh_proc"])
-            imgui.next_column()
-            imgui.text(self.activeConnections[conn]["user"])
-            imgui.next_column()
-            imgui.text(self.activeConnections[conn]["ip"]) 
-            imgui.next_column()
-            imgui.text(str(elapsed))
+            imgui.set_column_width(0, 70)
 
-        imgui.columns(1)
+            for conn in list(self.activeConnections.keys()):
+                now = datetime.now()
+                elapsed = now - self.activeConnections[conn]["connected_time"]
+                imgui.next_column()
+                imgui.text(self.activeConnections[conn]["ssh_proc"])
+                imgui.next_column()
+                imgui.text(self.activeConnections[conn]["user"])
+                imgui.next_column()
+                imgui.text(self.activeConnections[conn]["ip"]) 
+                imgui.next_column()
+                imgui.text(str(elapsed))
+
+            imgui.columns(1)
+
+            imgui.end_child()
+            imgui.end_child()
+
+            imgui.text("Select a SSH Session")
+
+            clicked, current = imgui.combo(
+                "##Path input", self.sshSelected, self.sshSelectionOptions
+            )
+
+            if (clicked):
+                self.sshSelected = current
+
+            imgui.same_line()
+
+            if (imgui.button("Kick")):
+                ssh_proc = self.sshSelectionOptions[self.sshSelected].split()[0][1:-1]
+                log.logNorm("Kicked SSH Session (" + ssh_proc + ") " + self.activeConnections[ssh_proc]["user"])
+                self.disconnectSSHConnection(ssh_proc)
+
+            imgui.same_line()
+            if (imgui.button("Ban User")):
+                ssh_proc = self.sshSelectionOptions[self.sshSelected].split()[0][1:-1]
+                username = self.sshSelectionOptions[self.sshSelected].split()[1]
+                self.banList["users"].append(username)
+                self.saveBanList()
+                self.disconnectSSHConnection(ssh_proc)
+
+            imgui.same_line()
+            if (imgui.button("Ban IP")):
+                pass
+
+        elif (self.activeInterface == "ban"):
+            imgui.text("ban interface")
+            imgui.end_child()
+
 
         imgui.end_child()
-        imgui.end_child()
-
-        imgui.text("Select a SSH Session")
-
-        clicked, current = imgui.combo(
-            "##Path input", self.sshSelected, self.sshSelectionOptions
-        )
-
-        if (clicked):
-            self.sshSelected = current
-
-        imgui.same_line()
-
-        if (imgui.button("Kick")):
-            ssh_proc = self.sshSelectionOptions[self.sshSelected].split()[0][1:-1]
-            log.logNorm("Kicked SSH Session (" + ssh_proc + ") " + self.activeConnections[ssh_proc]["user"])
-            self.disconnectSSHConnection(ssh_proc)
-
-        imgui.same_line()
-        if (imgui.button("Ban User")):
-            ssh_proc = self.sshSelectionOptions[self.sshSelected].split()[0][1:-1]
-            username = self.sshSelectionOptions[self.sshSelected].split()[1]
-            self.banList["users"].append(username)
-            self.saveBanList()
-            self.disconnectSSHConnection(ssh_proc)
-
-        imgui.same_line()
-        if (imgui.button("Ban IP")):
-            pass
-            
-
-        imgui.end_child()
-
 
         imgui.same_line()
 

@@ -29,6 +29,13 @@ class LTKSModule():
     def displayInterface(self):
         pass
 
+    def moduleMenuBar(self, modules):
+        click, _ = imgui.menu_item(self.name)
+        if click:
+            for _, moduleToDisable in modules.items():
+                moduleToDisable.interfaceActive = False
+            self.interfaceActive = not self.interfaceActive
+
     def configurationInterface(self):
         imgui.text_wrapped(self.description)
 

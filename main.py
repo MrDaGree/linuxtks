@@ -92,20 +92,20 @@ def main():
         imgui.begin_child("module_views")
         imgui.text("Module Interfaces")
         imgui.separator()
-        imgui.spacing()
 
-        imgui.begin_child("module_selector", height=25)
-        for moduleName, module in modules.items():
-            if imgui.radio_button(module.name, module.interfaceActive):
-                for _, moduleToDisable in modules.items():
-                    moduleToDisable.interfaceActive = False
-                module.interfaceActive = not module.interfaceActive
+        flags = imgui.WINDOW_MENU_BAR
 
-            imgui.same_line()
+        imgui.begin_child("module_selector", height=19, flags=flags)
+        if (imgui.begin_menu_bar()):
+            for moduleName, module in modules.items():
+                module.moduleMenuBar(modules)
+                    
+
+            # imgui.same_line()
+            imgui.end_menu_bar()
         imgui.end_child()
 
         imgui.separator()
-        imgui.spacing()
 
         for moduleName, module in modules.items():
             if module.started and module.interfaceActive:
