@@ -24,6 +24,8 @@ class SSHWatch(LTKSModule.LTKSModule):
     activeConnections = {}
 
     banList = {}
+    banUserSelected = 0
+    banIPSelected = 0
 
     def __init__(self):
         with open('saves/ban-list.json') as banlist_json:
@@ -47,6 +49,24 @@ class SSHWatch(LTKSModule.LTKSModule):
         subprocess.run("sudo pkill -9 -t " + conn, shell=True)
         del self.activeConnections[conn]
 
+    def handleDisconnectingCurrentSelection(self):
+        ssh_proc = self.sshSelectionOptions[self.sshSelected].split()[0][1:-1]
+        self.disconnectSSHConnection(ssh_proc)
+
+    def handleBanningUser(self):
+        ssh_proc = self.sshSelectionOptions[self.sshSelected].split()[0][1:-1]
+        username = self.sshSelectionOptions[self.sshSelected].split()[1]
+        self.alert("Banning user (" + username + ") on SSH Process " + ssh_proc)
+        self.banList["users"].append(username)
+        self.saveBanList()
+
+    def handleBanningIPAddr(self):
+        ssh_proc = self.sshSelectionOptions[self.sshSelected].split()[0][1:-1]
+        ip_addr = self.sshSelectionOptions[self.sshSelected].split()[2]
+        self.alert("Banning IP (" + ip_addr + ") on SSH Process " + ssh_proc)
+        self.banList["ip_addresses"].append(ip_addr)
+        self.saveBanList()
+
     def watchLoop(self):
         self.watchThread = threading.Timer(self.watchLoopTime, self.watchLoop)
         self.watchThread.setDaemon(True)
@@ -69,7 +89,10 @@ class SSHWatch(LTKSModule.LTKSModule):
                     }
 
                     if (data["user"] in self.banList["users"]):
-                        self.alert("SSH User BANNED Connection Detected " + data["user"] + " (" + data["ip"] + ")")
+                        self.alert("SSH User BANNED Connection Detected from " + data["user"] + " (" + data["ip"] + ")")
+                        subprocess.run("sudo pkill -9 -t " + data["ssh_proc"], shell=True)
+                    elif (data["ip"] in self.banList["ip_addresses"]):
+                        self.alert("SSH IP BANNED Connection Detected from " + data["user"] + " (" + data["ip"] + ")")
                         subprocess.run("sudo pkill -9 -t " + data["ssh_proc"], shell=True)
                     else: 
                         self.activeConnections[lineInfo[1]] = data
@@ -110,10 +133,11 @@ class SSHWatch(LTKSModule.LTKSModule):
         imgui.begin_child("left_bottom", width=606, height=370)
 
 
-        imgui.text("SSH Connections")
-        imgui.begin_child("left_bottom", width=606, height=310, border=True)
 
         if (self.activeInterface == "main"):
+
+            imgui.text("Main Interface (SSH)")
+            imgui.begin_child("left_bottom", width=606, height=290, border=True)
 
             imgui.begin_child("connections", width=606)
 
@@ -155,27 +179,90 @@ class SSHWatch(LTKSModule.LTKSModule):
             if (clicked):
                 self.sshSelected = current
 
-            imgui.same_line()
-
             if (imgui.button("Kick")):
                 ssh_proc = self.sshSelectionOptions[self.sshSelected].split()[0][1:-1]
                 log.logNorm("Kicked SSH Session (" + ssh_proc + ") " + self.activeConnections[ssh_proc]["user"])
                 self.disconnectSSHConnection(ssh_proc)
 
             imgui.same_line()
+            if (imgui.button("Ban Both")):
+                self.handleBanningUser()
+                self.handleBanningIPAddr()
+                self.handleDisconnectingCurrentSelection()
+
+            imgui.same_line()
             if (imgui.button("Ban User")):
-                ssh_proc = self.sshSelectionOptions[self.sshSelected].split()[0][1:-1]
-                username = self.sshSelectionOptions[self.sshSelected].split()[1]
-                self.banList["users"].append(username)
-                self.saveBanList()
-                self.disconnectSSHConnection(ssh_proc)
+                self.handleBanningUser()
+                self.handleDisconnectingCurrentSelection()
 
             imgui.same_line()
             if (imgui.button("Ban IP")):
-                pass
+                self.handleBanningIPAddr()
+                self.handleDisconnectingCurrentSelection()
+                
 
         elif (self.activeInterface == "ban"):
-            imgui.text("ban interface")
+            imgui.text("Ban List (SSH)")
+            imgui.begin_child("left_bottom", width=299, height=310, border=True)
+
+            imgui.columns(2, 'ssh_connections')
+            imgui.text("USERNAME")
+            imgui.next_column()
+            imgui.next_column()
+            imgui.separator()
+
+            for user in self.banList["users"]:
+                imgui.text(user)
+                imgui.next_column()
+
+            imgui.columns(1)
+            imgui.end_child()
+
+            imgui.same_line()
+
+            imgui.begin_child("right_bottom", width=299, height=310, border=True)
+            imgui.text("IP Address")
+            imgui.next_column()
+            imgui.next_column()
+            imgui.separator()
+
+            for user in self.banList["ip_addresses"]:
+                imgui.text(user)
+                imgui.next_column()
+
+            imgui.columns(1)
+            imgui.end_child()
+
+            imgui.begin_child("left_selection", width=299)
+
+            clicked, current = imgui.combo(
+                "##Path input", self.banUserSelected, self.banList["users"]
+            )
+
+            imgui.same_line()
+
+            if (imgui.button("Unban")):
+                self.alert("Unbanning User (" + self.banList["users"][self.banUserSelected] + ")")
+                del self.banList["users"][self.banUserSelected]
+                self.saveBanList()
+
+            imgui.end_child()
+
+            imgui.same_line()
+
+            imgui.begin_child("right_selection", width=299)
+
+            clicked, current = imgui.combo(
+                "##Path input", self.banIPSelected, self.banList["ip_addresses"]
+            )
+
+            imgui.same_line()
+
+            if (imgui.button("Unban")):
+                self.alert("Unbanning IP (" + self.banList["ip_addresses"][self.banIPSelected] + ")")
+                del self.banList["ip_addresses"][self.banIPSelected]
+                self.saveBanList()
+
             imgui.end_child()
 
 
