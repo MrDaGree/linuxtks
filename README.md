@@ -16,6 +16,7 @@ LinuxTKS is part of my Student Innvate Project during my schooling. It is requir
 * [x] Add in viewing of banned users and IPs
 * [x] Add in option to remove users/IPs from ban list
 * [ ] Add in an option to disable alerts
+* [ ] Eventually create something for not GUI Linux builds that utilize same functions
 
 
 ### Network Traffic Alerts

@@ -1,0 +1,23 @@
+{
+    "/home/dgreeley/Documents/SIP/linuxtks/gui": {
+        "dir-content": {
+            "directories": [
+                "saves",
+                "modules",
+                ".git",
+                "test"
+            ],
+            "files": [
+                "main.py",
+                "sip.code-workspace",
+                "README.md",
+                ".gitignore"
+            ]
+        },
+        "last-modified": 1606757480.3573682
+    },
+    "/home/dgreeley/Documents/SIP/linuxtks/README.md": {
+        "last-content": "# LinuxTKS\n\n## About\nLinuxTKS is part of my Student Innvate Project during my schooling. It is required to create something innovative in order to graduate, thus came along the idea of creating a light weight toolkit for Linux for things that I overlooked in CCDC competitions.\n\n## Current Known Issues\n* [ ] Cannot remove file until one before that is removed\n  * File/Directory Change Module, must add drop down \n* [x] Cannot kick or ban SSH user until one before that is\n  * Added in a drop down option to select a SSH session to kick or ban \n* [ ] Must run as sudo or as root in order to kick or ban other users (linux permissions)\n\n## Things to work on\n* [x] Ban SSH by User\n* [x] Ban SSH by connecting IP\n* [x] Add in viewing of banned users and IPs\n* [x] Add in option to remove users/IPs from ban list\n* [ ] Add in an option to disable alerts\n* [ ] Eventually create something for not GUI Linux builds that utilize same functions\n\n\n### Network Traffic Alerts\n\n![Network Traffic Alerts](https://uat.mrdagree.com/img/sip/network_alert_demo.png)\n\n\n### File/Directory Modification Alerts\n\n![File/Directory](https://uat.mrdagree.com/img/sip/file_alert_demo.png)\n\n### SSH Detection Alerts\n\n![SSH Detection](https://uat.mrdagree.com/img/sip/ssh_alert_demo.png)\n\n### SSH Ban Demo\n\n![SSH Ban Demo](https://uat.mrdagree.com/img/sip/ssh_ban_demo.png)",
+        "last-modified": 1606951187.1935737
+    }
+}
